@@ -1,0 +1,6 @@
+
+
+class Cube{
+    corners = []
+    edges = []
+}
