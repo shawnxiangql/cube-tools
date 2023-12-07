@@ -1,4 +1,4 @@
-package com.xql.cubetools;
+package com.xql.cubetools.search;
 
 import java.util.Random;
 
