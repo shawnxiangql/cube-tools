@@ -24,7 +24,7 @@
             height: 90px;
             border: 1px peachpuff solid;
             position: absolute;
-            display: flex;
+            /*display: flex;*/
             /*flex-flow: row;*/
         }
 
@@ -62,7 +62,6 @@
             display: inline-block;
             /*position: absolute;*/
         }
-
     </style>
 </head>
 <body>
@@ -137,5 +136,20 @@
     </div>
 
 </div>
+<script>
+    let container = document.getElementById("container")
+    container.style = "width: 500px; height: 500px;";
+
+    document.createElement("div")
+
+    let cube = document.getElementById("cube")
+    let sides = document.getElementsByClassName("sideU")
+    let eles = document.getElementsByClassName("sideB")
+    for (let i = 0; i < eles.length; i++) {
+        let item = eles.item(i)
+        item.style = "background-color: red;"
+    }
+
+</script>
 </body>
 </html>

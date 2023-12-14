@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .cube {
+            width: 100px;
+            height: 100px;
+            perspective: 600px;
+        }
+
+        .face {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 1px solid black;
+            box-sizing: border-box;
+            background-color: white;
+            text-align: center;
+        }
+
+        .front {
+            transform: translateZ(50px);
+        }
+
+        .back {
+            transform: rotateY(180deg) translateZ(50px);
+        }
+
+        .left {
+            transform: rotateY(-90deg) translateZ(50px);
+        }
+
+        .right {
+            transform: rotateY(90deg) translateZ(50px);
+        }
+
+        .top {
+            transform: rotateX(90deg) translateZ(50px);
+        }
+
+        .bottom {
+            transform: rotateX(-90deg) translateZ(50px);
+        }
+    </style>
+</head>
+<body>
+<div class="cube">
+    <div class="face front">F</div>
+    <div class="face back">B</div>
+    <div class="face left">L</div>
+    <div class="face right">R</div>
+    <div class="face top">U</div>
+    <div class="face bottom">D</div>
+</div>
+</body>
+</html>
