@@ -3,10 +3,10 @@ package com.xql.cubetools.cube;
 import java.util.Objects;
 
 public abstract class NamedElement {
-    private String name;
+    private final String name;
 
     protected NamedElement(String name) {
-        this.name = name;
+        this.name = name.trim();
     }
 
     public String getName() {

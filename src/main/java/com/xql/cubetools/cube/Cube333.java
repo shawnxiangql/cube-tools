@@ -31,7 +31,7 @@ import java.util.function.Function;
  */
 public class Cube333 {
 
-    private Slice[] slices = Const.sliceOrders.toArray(new Slice[0]);
+    private Slice[] slices = Const.orderedSlices.toArray(new Slice[54]);
 
     public Cube333() {
     }
@@ -43,14 +43,18 @@ public class Cube333 {
         for (String twistName : twistNames) Const.twistMap.get(twistName.trim()).doTwist(this);
     }
 
+    public Slice[] getSlices() {
+        return slices;
+    }
+
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        String[] sides = {"U", "R", "F", "D", "L", "B"};
+        String[] sides = {"U", "L", "F", "R", "B", "D"};
         for (int i = 0; i < sides.length; i++) {
             s.append(sides[i]).append("\n");
             for (int j = 0; j < 9; j++) {
-                s.append(slices[i * 9 + j]).append(" ");
+                s.append(slices[i * 9 + j].getName()).append(" ");
                 if (j % 3 == 2) {
                     s.append("\n");
                 }
@@ -74,68 +78,9 @@ public class Cube333 {
         slices[indexA] = tmp;
     }
 
-    public String edgeBuffer = "U6";
-    public String cornerBuffer = "U9";
-    public String[] edgeFindOrder = "U8,U4,U2,D2,D4,D8,D6,F4,F6,B6,B4".split(",");
-    public String[] cornerFindOrder = "".split(",");
-
-    public String getChiChu() {
-        List<String> edgeSliceOrder = new ArrayList<>();
-        List<String> edgeSliceFlips = new ArrayList<>();
-
-        Set<String> visitedBlockNamess = new HashSet<>();
-        Slice current = Const.sliceMap.get(edgeBuffer);
-        Block currentBlock = Const.sliceBlockMap.get(current.getName());
-        visitedBlockNamess.add(currentBlock.getName());// buffer block put into visited
-
-        Slice target = slices[Const.sliceIndexMap.get(current.getName())];
-        Block targetBlock = Const.sliceBlockMap.get(target.getName());
-
-        int findIndex = 0;
-
-        while (visitedBlockNamess.size() < 12) {
-            if (visitedBlockNamess.contains(targetBlock.getName())) { // 目标块已经看过了
-                if (currentBlock.getName().equals(targetBlock.getName())) { // 同一块,已还原或需翻色
-                    if (current.getName().equals(target.getName())) {
-                        // 当前位置已经还原
-                    } else {
-                        // 当前位置需要翻色
-                        edgeSliceFlips.add(current.getName() + "," + target.getName());
-                    }
-                } else { // 不同块，循环结束
-                    edgeSliceOrder.add(target.getName());
-                }
-                // 跳到下一个没有看过的查找块
-                do {
-                    current = Const.sliceMap.get(edgeFindOrder[findIndex]);
-                    currentBlock = Const.sliceBlockMap.get(current.getName());
-                } while (visitedBlockNamess.contains(currentBlock.getName()) && findIndex++ < edgeFindOrder.length);
-
-                if (visitedBlockNamess.contains(currentBlock.getName())) {
-                    // 所有块都看过,结束
-                    break;
-                } else { // 找到了下一块，继续
-                    visitedBlockNamess.add(currentBlock.getName());
-                    target = slices[Const.sliceIndexMap.get(current.getName())];
-                    targetBlock = Const.sliceBlockMap.get(target.getName());
-                }
-            } else { // 目标块没看过,记录当前块，走到下一块
-                edgeSliceOrder.add(current.getName());
-
-                current = target;
-                currentBlock = targetBlock;
-                visitedBlockNamess.add(currentBlock.getName());
-                target = slices[Const.sliceIndexMap.get(current.getName())];
-                targetBlock = Const.sliceBlockMap.get(target.getName());
-            }
-        }
-
-
-        return String.join(" ", edgeSliceOrder) + ";" + String.join(" ", edgeSliceFlips) + "\n";
-    }
 
     public static class Const {
-        public static final List<Slice> sliceOrders = new ArrayList<>();
+        public static final List<Slice> orderedSlices = new ArrayList<>();
         public static final Map<String, Slice> sliceMap = new HashMap<>();
         public static final Map<String, Integer> sliceIndexMap = new HashMap<>();
         public static final Map<String, Block> blockMap = new HashMap<>();
@@ -145,40 +90,40 @@ public class Cube333 {
         public static final Map<String, Surface> sliceSurfaceMap = new HashMap<>();
 
         static {
-            batchParse(Const::parseSlice, ",", " " +
+            batchParse(Const::parseSlice, ",", "" +
                     "U1,U2,U3,U4,U5,U6,U7,U8,U9," +
-                    "R1,R2,R3,R4,R5,R6,R7,R8,R9," +
-                    "F1,F2,F3,F4,F5,F6,F7,F8,F9," +
-                    "D1,D2,D3,D4,D5,D6,D7,D8,D9," +
                     "L1,L2,L3,L4,L5,L6,L7,L8,L9," +
-                    "B1,B2,B3,B4,B5,B6,B7,B8,B9");
+                    "F1,F2,F3,F4,F5,F6,F7,F8,F9," +
+                    "R1,R2,R3,R4,R5,R6,R7,R8,R9," +
+                    "B1,B2,B3,B4,B5,B6,B7,B8,B9," +
+                    "D1,D2,D3,D4,D5,D6,D7,D8,D9");
 
-            batchParse(Const::parseBlock, ";\\s?", " " +
+            batchParse(Const::parseBlock, ";\\s?", "" +
                     "UFL:U7,F1,L3;ULB:U1,L1,B3;UBR:U3,B1,R3;URF:U9,F3,R1;" +
                     "DLF:D1,L9,F7;DBL:D7,B9,L7;DRB:D9,R9,B7;DFR:D3,F9,R7;" +
                     "UF:U8,F2;UL:U4,L2;UB:U2,B2;UR:U6,R2;" +
                     "DF:D2,F8;DL:D4,L8;DB:D8,B8;DR:D6,R8;" +
                     "FR:F6,R4;FL:F4,L6;BL:B6,L4;BR:B4,R6");
 
-            batchParse(Const::parseTwist, "\\n", " " +
-                    "E:F4,R4,B4,L4;F5,R5,B5,L5;F6,R6,B6,L6\n" + "E2:E,E\n" + "E':E,E,E\n" +
-                    "M:F2,D2,B8,U2;F5,D5,B5,U5;F8,D8,B2,U8\n" + "M2:M,M\n" + "M':M,M,M\n" +
-                    "S:D6,R8,U4,L2;D5,R5,U5,L5;D4,R2,U6,L8\n" + "S2:S,S\n" + "S':S,S,S\n" +
-                    "R:U3,B7,D3,F3;U6,B4,D6,F6;U9,B1,D9,F9;R1,R3,R9,R7;R2,R6,R8,R4\n" +
-                    "R2:R,R\n" + "R':R,R,R\n" + "Rw:R,M'\n" + "Rw2:R2,M2\n" + "Rwp:R',M\n" +
-                    "U:L1,B1,R1,F1;L2,B2,R2,F2;L3,B3,R3,F3;U1,U3,U9,U7;U2,U6,U8,U4\n" +
-                    "U2:U,U\n" + "U':U,U,U\n" + "Uw:U,E'\n" + "Uw2:U2,E2\n" + "Uwp:U',E\n" +
-                    "F:U7,R1,D3,L9;U8,R4,D2,L6;U9,R7,D1,L3;F1,F3,F9,F7;F2,F6,F8,F4\n" +
-                    "F2:F,F\n" + "F':F,F,F\n" + "Fw:F,S'\n" + "Fw2:F2,S2\n" + "Fwp:F',S\n" +
-                    "L:U1,F1,D1,B9;U4,F4,D4,B6;U7,F7,D7,B3;L1,L3,L9,L7;L2,L6,L8,L4\n" + "L2:L,L\n" + "L':L,L,L\n" +
-                    "D:L7,F7,R7,B7;L8,F8,R8,B8;L9,F9,R9,B9;D1,D3,D9,D7;D2,D6,D8,D4\n" + "D2:D,D\n" + "D':D,D,D\n" +
-                    "B:U1,L7,D9,R3;U2,L4,D8,R6;U3,L1,D7,R9;B1,B3,B9,B7;B2,B6,B8,B4\n" + "B2:B,B\n" + "B':B,B,B\n" +
-                    "x:R,M',L'\n" + "x2:R2,M2,L2\n" + "x':R',M,L\n" +
-                    "y:U,E',D'\n" + "y2:U2,E2,D2\n" + "y':U',E,D\n" +
-                    "z:F,S',B'\n" + "z2:F2,S2,B2\n" + "z':F',S,B"
+            batchParse(Const::parseTwist, "--", "" +
+                    "E:F4,R4,B4,L4;F5,R5,B5,L5;F6,R6,B6,L6--E2:E;E--E':E;E;E--" +
+                    "M:F2,D2,B8,U2;F5,D5,B5,U5;F8,D8,B2,U8--M2:M;M--M':M;M;M--" +
+                    "S:D6,R8,U4,L2;D5,R5,U5,L5;D4,R2,U6,L8--S2:S;S--S':S;S;S--" +
+                    "R:U3,B7,D3,F3;U6,B4,D6,F6;U9,B1,D9,F9;R1,R3,R9,R7;R2,R6,R8,R4--" +
+                    "R2:R;R--R':R;R;R--Rw:R;M'--Rw2:R2;M2--Rwp:R';M--" +
+                    "U:L1,B1,R1,F1;L2,B2,R2,F2;L3,B3,R3,F3;U1,U3,U9,U7;U2,U6,U8,U4--" +
+                    "U2:U;U--U':U;U;U--Uw:U;E'--Uw2:U2;E2--Uwp:U';E--" +
+                    "F:U7,R1,D3,L9;U8,R4,D2,L6;U9,R7,D1,L3;F1,F3,F9,F7;F2,F6,F8,F4--" +
+                    "F2:F;F--F':F;F;F--Fw:F;S'--Fw2:F2;S2--Fwp:F';S--" +
+                    "L:U1,F1,D1,B9;U4,F4,D4,B6;U7,F7,D7,B3;L1,L3,L9,L7;L2,L6,L8,L4--L2:L;L--L':L;L;L--" +
+                    "D:L7,F7,R7,B7;L8,F8,R8,B8;L9,F9,R9,B9;D1,D3,D9,D7;D2,D6,D8,D4--D2:D;D--D':D;D;D--" +
+                    "B:U1,L7,D9,R3;U2,L4,D8,R6;U3,L1,D7,R9;B1,B3,B9,B7;B2,B6,B8,B4--B2:B;B--B':B;B;B--" +
+                    "x:R;M';L'--x2:R2;M2;L2--x':R';M;L--" +
+                    "y:U;E';D'--y2:U2;E2;D2--y':U';E;D--" +
+                    "z:F;S';B'--z2:F2;S2;B2--z':F';S;B"
             );
 
-            batchParse(Const::parseSurface, ";", " " +
+            batchParse(Const::parseSurface, ";", "" +
                     "U:U1,U2,U3,U4,U5,U6,U7,U8,U9;" +
                     "F:F1,F2,F3,F4,F5,F6,F7,F8,F9;" +
                     "R:R1,R2,R3,R4,R5,R6,R7,R8,R9;" +
@@ -239,7 +184,7 @@ public class Cube333 {
             Slice slice = new Slice(str);
             sliceMap.put(str, slice);
             sliceIndexMap.put(str, sliceIndex++);
-            sliceOrders.add(slice);
+            orderedSlices.add(slice);
             return slice;
         }
     }
